@@ -2,15 +2,13 @@ import sys
 from os import path
 
 from .utils import fout, ferr
-from .parser import proc_file
+from .lisp import parse_file
 
 
 def main(args):
     for arg in args:
-        if not path.isfile(arg):
-            ferr("'{}' is not a file", arg)
-            continue
-        print(proc_file(arg))
+        with open(arg) as f:
+            print(parse_file(f))
 
     return 0
 

@@ -1,6 +1,6 @@
 (aa '(bb "a") 17.5)
 (cc 100)
-(*baab* this and that)
+(*baab* "this" "and that")
 ("a multi
 line
 string")
@@ -10,3 +10,6 @@ string")
 interesting one")
 
 (shell /bin/bash)
+
+(+ .1 5,000,000)
+(* 10_000 100,000)
