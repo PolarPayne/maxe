@@ -16,3 +16,6 @@ interesting one")
 
 (these-weird-things "\\" "\t" "\"" "\n" "\ " "\
 ")
+
+; this is a comment
+(abba "baab ; this is not a comment")
