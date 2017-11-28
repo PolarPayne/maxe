@@ -1,0 +1,119 @@
+# order of build:
+#   depends
+#   skip
+#   build
+#   wanted (reverse depends)
+
+# aka ->
+# build dependencies
+# check if this should be skipped
+# if not -> build target
+
+# builtin variables:
+#   ROOT
+
+# special "functions":
+#   shell
+#   var
+#   export
+#   include
+#   default-target
+#   rule
+
+# strings
+#   "string"
+#   """multiline string"""  it this even needed?
+#   `variable string`
+
+# --- START OF FILE ---
+#!/usr/bin/env maxe
+# first line should be a shebang
+
+version 0
+# before any other command, a version command may appear
+
+# defaults to "/bin/sh"
+shell "/bin/bash"
+
+var
+    PYTHONPATH (ROOT (split-path (env "PYTHONPATH")))
+# exports the value to shell
+export
+    "PYTHONPATH" (join ":" PYTHONPATH))
+
+include
+    (file "funcs")
+
+# default default-target is ()
+default-target
+    (file "plan")
+
+rule
+    (phony "init")
+:skip
+    (dir ".terraform")
+:build
+    (sh "terraform init")
+
+rule
+    (file "plan" :save 'target)
+:depends
+    (phony "init")
+:build
+    (sh `rm -f {target}`)
+    (sh `terraform plan {target}`)
+
+rule
+    (phony "clean")
+:depends
+    (phony "clean-%" :pattern)
+    (not (phony "clean-full"))
+:build
+    (rm ".terraform")
+
+rule
+    (phony "clean-pyc")
+:build
+    (for-each PYTHONPATH
+        (sh `rm -f "$(find {it} -name '*.pyc')"`))
+
+# these trigger patterns
+rule
+    (file "main.o")
+    (file "tests.o")
+
+# patterns still need some work
+rule
+    (file "%.o" :pattern :save 'pattern)
+:doc
+    "build an object file from source and header"
+:depends
+    (file `{pattern}.c` :save 'source)
+    (file `{pattern}.h` :save 'header)
+:build
+    (sh `clang -c {source} {header} -o {pattern}` :timeout 100)
+# versus
+#   (cmd '("clang" "-c" source header "-o" pattern) :timeout 100)
+
+# file target with no build fails if no such file exists
+rule
+    (file ".ansible_vault")
+:wanted
+    (all)
+
+# dir target with no build creates the directory if it doesn't exist
+rule
+    (dir "logs")
+:wanted
+    (all)
+
+# possible, but why do it??
+    (sh """
+import sys
+
+with open(sys.argv[1]) as file:
+    for line in file:
+        line = line.strip()
+        if not line:
+            sys.exit(1)
+""" :shell "python3" "-" dependency)
