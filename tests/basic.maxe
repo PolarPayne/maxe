@@ -1,0 +1,12 @@
+(aa '(bb "a") 17.5)
+(cc 100)
+(*baab* this and that)
+("a multi
+line
+string")
+
+("string with a \"")
+("another \
+interesting one")
+
+(shell /bin/bash)
