@@ -13,3 +13,6 @@ interesting one")
 
 (+ .1 5,000,000)
 (* 10_000 100,000)
+
+(these-weird-things "\\" "\t" "\"" "\n" "\ " "\
+")
