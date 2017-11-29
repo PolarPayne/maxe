@@ -52,6 +52,9 @@ def parse_file(fp):
         elif state == "in_str" and char != '"':
             ident.append(char)
 
+        # --- no longer inside a string ---
+
+        # inside a comment
         elif state == "in_comment":
             if char == "\n":
                 state = ""
@@ -74,8 +77,11 @@ def parse_file(fp):
                 ferr("'\"' in an invalid place at {}:{}", line, column)
             ident.append(char)
 
+        # start of comment
         elif char == ";":
             state = "in_comment"
+
+        # TODO transform '(a b c) to (quote (a b c))
 
         # open bracket
         elif char == "(":
