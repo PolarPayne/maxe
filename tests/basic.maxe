@@ -19,3 +19,11 @@ interesting one")
 
 ; this is a comment
 (abba "baab ; this is not a comment")
+
+(side-effect :do-it #t &rest)
+
+(this(is(kinda(weird?)or)is)it?)
+
+("string with (brackets)")
+
+('a'b'c)
