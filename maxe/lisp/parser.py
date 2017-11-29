@@ -1,4 +1,5 @@
 import io
+from collections import deque
 
 from .core import MaxeAtom, MaxeExpression
 from ..utils import fstr, ferr, FileCharIter
@@ -14,8 +15,8 @@ def parse_file(fp):
     state = ""
     skip_next = False
 
-    out = MaxeExpression()
-    ast = []
+    ast = MaxeExpression()
+    stack = deque()
     ident = []
 
     for char, lookahead in FileCharIter(fp):
@@ -63,7 +64,7 @@ def parse_file(fp):
         elif char in WHITESPACE:
             state = ""
             if ident:
-                ast[-1].add(MaxeAtom("".join(ident)))
+                stack[-1].add(MaxeAtom("".join(ident)))
                 ident = []
 
         # start or end of string
@@ -86,22 +87,22 @@ def parse_file(fp):
         # open bracket
         elif char == "(":
             if ident:
-                ast[-1].add(MaxeAtom("".join(ident)))
+                stack[-1].add(MaxeAtom("".join(ident)))
                 ident = []
             depth += 1
-            ast.append(MaxeExpression())
+            stack.append(MaxeExpression())
 
         # close bracket
         elif char == ")":
             if ident:
-                ast[-1].add(MaxeAtom("".join(ident)))
+                stack[-1].add(MaxeAtom("".join(ident)))
                 ident = []
             depth -= 1
-            tmp = ast.pop()
-            if ast:
-                ast[-1].add(tmp)
+            tmp = stack.pop()
+            if stack:
+                stack[-1].add(tmp)
             else:
-                out.add(tmp)
+                ast.add(tmp)
 
         # everything else must be characters
         else:
@@ -112,4 +113,4 @@ def parse_file(fp):
     if depth > 0:
         ferr("missing closing bracket ')'")
 
-    return out
+    return ast
