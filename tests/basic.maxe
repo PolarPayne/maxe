@@ -6,8 +6,8 @@ line
 string")
 
 ("string with a \"")
-("another \
-interesting one")
+("this \
+should be on one line")
 
 (shell /bin/bash)
 
@@ -18,7 +18,7 @@ interesting one")
 ")
 
 ; this is a comment
-(abba "baab ; this is not a comment")
+("; this is not a comment")
 
 (side-effect :do-it #t &rest)
 
@@ -26,4 +26,4 @@ interesting one")
 
 ("string with (brackets)")
 
-('a'b'c)
+("this should be followed by a b c"'a'b'c)

@@ -1,9 +1,9 @@
-'()
+'()  ; (quote ())
 
-'a
+'a  ; (quote a)
 
-'(a)
+'(a)  ; (quote (a))
 
-(a '(b c d))
+(str '(b c d))  ; (str (quote (b c d))
 
-(a '(b c) d)
+(concat '(b c) d)  ; (concat (quote (b c) d)
