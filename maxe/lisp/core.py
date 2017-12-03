@@ -11,16 +11,18 @@ class MaxeString:
         self.value = value
 
     def __str__(self):
-        return fstr('"{}"', self.value.replace('"', '\\"'))
+        return fstr("{}", self.value)
 
     def __repr__(self):
-        return fstr("<MaxeString {}>", str(self))
+        return fstr('"{}"', self.value.replace('"', '\\"'))
 
 
-class MaxeFloat(float): pass
+class MaxeFloat(float):
+    pass
 
 
-class MaxeInt(int): pass
+class MaxeInt(int):
+    pass
 
 
 class MaxeSymbol(str):
@@ -34,7 +36,7 @@ class MaxeSymbol(str):
         return self.value
 
     def __repr__(self):
-        return fstr("<MaxeSymbol {}>", str(self))
+        return str(self)
 
     def __eq__(self, other):
         if type(other) is not self.__class__:
@@ -67,10 +69,10 @@ class MaxeExpression:
         yield from self.values
 
     def __str__(self):
-        return fstr("({})", " ".join(map(str, self)))
+        return fstr("({})", " ".join(map(repr, self)))
 
     def __repr__(self):
-        return fstr("<MaxeExpression ({})>", " ".join(map(repr, self)))
+        return str(self)
 
 
 def proc_number(s):

@@ -5,21 +5,37 @@ from ..utils import fstr
 from .core import atom, MaxeExpression, MaxeSymbol
 
 
-def plus(*args):
-    return fc.reduce(lambda a, b: a + b, args, 0)
+def plus(first, *rest):
+    return fc.reduce(lambda a, b: a + b, rest, first)
 
 
-def minus(*args):
-    return fc.reduce(lambda a, b: b - a, args, 0)
+def minus(first, *rest):
+    return fc.reduce(lambda a, b: b - a, rest, 0)
+
+
+def multiply(first, *rest):
+    return fc.reduce(lambda a, b: a * b, rest, first)
+
+
+def divide(first, *rest):
+    return fc.reduce(lambda a, b: a / b, rest, first)
+
+
+def exponent(first, *rest):
+    return first ** fc.reduce(lambda a, b: b**a, reversed(rest), 1)
 
 
 core_env = {
     atom("+"): plus,
     atom("-"): minus,
-    atom("print"): print,
+    atom("*"): multiply,
+    atom("/"): divide,
+    atom("**"): exponent,
+    atom("^"): exponent,
+    atom("print"): lambda *s: print(*s),
     atom("format"): fstr,
-    atom("car"): lambda args: args[0],
-    atom("cdr"): lambda args: args[1:],
+    atom("car"): lambda x: x[0],
+    atom("cdr"): lambda x: x[1:],
 }
 
 

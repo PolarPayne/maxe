@@ -49,7 +49,7 @@ def parse(fp):
             continue
 
         # string escaping
-        if state is State.in_comment and char == "\\":
+        if state is State.in_str and char == "\\":
             if lookahead == "n":
                 char = "\n"
                 skip_next = True
@@ -76,21 +76,21 @@ def parse(fp):
         # inside a comment
         elif state is State.in_comment:
             if char == "\n":
-                state = ""
+                state = State.other
 
         # whitespace
         elif char in WHITESPACE:
-            state = ""
+            state = State.other
             handle_ident()
 
         # start or end of string
         elif char == '"':
             if state is State.in_str:
-                state = ""
-            elif state is "":
+                state = State.other
+            elif state is State.other:
                 state = State.in_str
             else:
-                # TODO fail
+                # TODO fail?
                 ferr("'\"' in an invalid place at {}:{}", line, column)
             ident.append(char)
 
