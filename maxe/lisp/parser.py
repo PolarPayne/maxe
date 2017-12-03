@@ -179,7 +179,6 @@ def parse_file(fp):
         elif char == ";":
             state = "in_comment"
 
-        # TODO transform '(a b c) to (quote (a b c))
         elif char == "'":
             handle_ident()
             stack.append(MaxeExpression(MaxeSymbol("quote")))
