@@ -35,6 +35,11 @@ class MaxeSymbol(str):
     def __repr__(self):
         return fstr("<MaxeSymbol {}>", str(self))
 
+    def __eq__(self, other):
+        if type(other) is not self.__class__:
+            return False
+        return self.value == other.value
+
 
 class MaxeExpression:
     def __init__(self, *values):
@@ -48,6 +53,12 @@ class MaxeExpression:
 
     def peek(self):
         return self.values[-1]
+
+    def peek_bottom(self):
+        return self.values[0]
+
+    def __len__(self):
+        return len(self.values)
 
     def __iter__(self):
         yield from self.values
@@ -92,8 +103,20 @@ def parse_file(fp):
     state = ""
     skip_next = False
 
-    ast = MaxeExpression(MaxeExpression())
+    stack = MaxeExpression(MaxeExpression())
     ident = []
+
+    def handle_ident():
+        nonlocal ident
+
+        if ident:
+            stack.peek().append(atom("".join(ident)))
+            ident = []
+
+        while len(stack.peek()) >= 1 and stack.peek().peek_bottom() == MaxeSymbol("quote"):
+            tmp = stack.pop()
+            print("> quote", stack.peek())
+            stack.peek().append(tmp)
 
     for char, lookahead in FileCharIter(fp):
         column += 1
@@ -139,9 +162,7 @@ def parse_file(fp):
         # whitespace
         elif char in WHITESPACE:
             state = ""
-            if ident:
-                ast.peek().append(atom("".join(ident)))
-                ident = []
+            handle_ident()
 
         # start or end of string
         elif char == '"':
@@ -159,23 +180,22 @@ def parse_file(fp):
             state = "in_comment"
 
         # TODO transform '(a b c) to (quote (a b c))
+        elif char == "'":
+            handle_ident()
+            stack.append(MaxeExpression(MaxeSymbol("quote")))
 
         # open bracket
         elif char == "(":
-            if ident:
-                ast.peek().append(atom("".join(ident)))
-                ident = []
             depth += 1
-            ast.append(MaxeExpression())
+            stack.append(MaxeExpression())
+            handle_ident()
 
         # close bracket
         elif char == ")":
-            if ident:
-                ast.peek().append(atom("".join(ident)))
-                ident = []
             depth -= 1
-            tmp = ast.pop()
-            ast.peek().append(tmp)
+            handle_ident()
+            tmp = stack.pop()
+            stack.peek().append(tmp)
 
         # everything else must be characters
         else:
@@ -186,4 +206,8 @@ def parse_file(fp):
     if depth > 0:
         ferr("missing closing bracket ')'")
 
-    return ast.pop()
+    assert len(stack) == 1, fstr("""\
+stack should have had only single item left, but it had {}
+stack:
+{}""", len(stack), "\n".join(map(lambda s: "  " + str(s), stack)))
+    return stack.pop()
