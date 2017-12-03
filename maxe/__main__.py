@@ -1,19 +1,24 @@
 import sys
-from os import path
-from pprint import pprint
+import argparse
 
-from .utils import fout, ferr
-from .lisp import parse_file
+from .lisp import parse, evaluate
 
 
-def main(args):
-    for arg in args:
-        with open(arg) as f:
-            for i in parse_file(f):
-                print(i)
+def main():
+    parser = argparse.ArgumentParser()
 
-    return 0
+    parser.add_argument("file",
+        type=argparse.FileType(),
+        default="-",
+        nargs="?")
+
+    args = parser.parse_args()
+
+    for i in parse(args.file):
+        evaluate(i)
+#    for i in parse(args.file):
+#        print(i)
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+    sys.exit(main())

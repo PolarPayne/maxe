@@ -1,1 +1,2 @@
-from .parser import parse_file
+from .parser import parse
+from .interpreter import evaluate
