@@ -17,3 +17,30 @@
   (** 10 2 2)  ; 10**2**2 = 10000
   (+ 1)
   (^ 10))
+
+(define abba 15)
+(print (+ 3 abba))
+
+(let (baab 3)
+  (print (+ 1 baab)))
+
+(let (a 1)
+  (let (b 2)
+    (print (+ a b))))
+
+(let*
+  (a 9)
+  (b 7)
+  (print (+ a b)))
+
+(let*
+  (a 99)
+  (b (+ a 1))
+  (print b))
+
+(print
+  ((car '(format)) "abba {}" "baab"))
+
+(print
+  "10 - -5 - -2 ="
+  (- 10 -5 -2))
