@@ -10,7 +10,7 @@ def plus(first, *rest):
 
 
 def minus(first, *rest):
-    return fc.reduce(lambda a, b: b - a, rest, 0)
+    return first + fc.reduce(lambda a, b: a - b, rest, 0)
 
 
 def multiply(first, *rest):
@@ -25,7 +25,11 @@ def exponent(first, *rest):
     return first ** fc.reduce(lambda a, b: b**a, reversed(rest), 1)
 
 
-core_env = {
+QUOTE = atom("quote")
+DEFINE = atom("define")
+LET = atom("let")
+LET_STAR = atom("let*")
+CORE_ENV = {
     atom("+"): plus,
     atom("-"): minus,
     atom("*"): multiply,
@@ -41,7 +45,8 @@ core_env = {
 
 def evaluate(ast, env=None):
     if env is None:
-        env = core_env
+        env = CORE_ENV
+    env_copy = env.copy()
 
     if isinstance(ast, MaxeSymbol):
         return env[ast]
@@ -52,9 +57,22 @@ def evaluate(ast, env=None):
     op = ast[0]
     args = ast[1:]
 
-    if op == atom("quote"):
+    if op == QUOTE:
         return args[0]
+    elif op == DEFINE:
+        env[args[0]] = evaluate(args[1], env)
+        return MaxeExpression()
+    elif op == LET:
+        env_copy[args[0][0]] = evaluate(args[0][1], env)
+        return evaluate(args[1], env_copy)
+    elif op == LET_STAR:
+        for i in args[0:-1]:
+            env_copy[i[0]] = evaluate(i[1], env_copy)
+        return evaluate(args[-1], env_copy)
 
-    proc = evaluate(op, env)
-    vals = [evaluate(arg, env) for arg in args]
-    return proc(*vals)
+    else:
+        proc = evaluate(op, env)
+        while not callable(proc):
+            proc = evaluate(proc, env)
+        vals = [evaluate(arg, env) for arg in args]
+        return proc(*vals)
